@@ -1,11 +1,10 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const path = require('path');
 
-// Główna strona
-app.get('/', (req, res) => {
-  res.send('Serwer Express działa poprawnie!');
-});
+// Serwowanie plikow statyczne z folderu "public"
+app.use(express.static('public'));
 
 // Start serwera
 app.listen(port, () => {
