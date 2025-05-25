@@ -7,36 +7,56 @@
         <meta name="description" content="OPIS strony">
         <meta name="author" content="Sebastian Musiał">
         <link rel="stylesheet" href="style.css">
+        <script>
+  fetch('/api/klienci')
+  .then(response => response.json())
+  .then(data => {
+    const Tablica = document.getElementById('klienci');
+
+    data.forEach(klient => {
+      const row = document.createElement('tr');
+
+      const cell1 = document.createElement('td');
+      cell1.textContent = klient.ID_Client;
+      row.appendChild(cell1);
+
+      const cell2 = document.createElement('td');
+      cell2.textContent = klient.Imie;
+      row.appendChild(cell2);
+
+      const cell3 = document.createElement('td');
+      cell3.textContent = klient.Nazwisko;
+      row.appendChild(cell3);
+
+      const cell4 = document.createElement('td');
+      cell4.textContent = klient.Numer_Telefonu;
+      row.appendChild(cell4);
+
+      Tablica.appendChild(row);
+    });
+  })
+  .catch(err => {
+    console.error('Błąd:', err);
+  });
+</script>
     </head>
     <body>
         <header>
             <h1>Nazwa programu</h1>
         </header>
         <main>
-            <h2>Lista użytkowników</h2>
-                <table class="ID_CARDS">
+            <table class="ID_CARDS">
                 <thead>
                     <tr>
-                        <th>Użytkownik</th>
-                        <th>Email</th>
-                        <th>Rola</th>
+                        <th>Numer klienta</th>
+                        <th>Imie</th>
+                        <th>Nazwisko</th>
+                        <th>Numer telefonu</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-	                    <td>Sebastian Musiał</td>	
-                        <td><a href="E-mail@E-mail.com">E-mail@E-mail.com</a></td>
-                        <td>Autor strony</td>
-                    </tr>
-                </tbody>
-                <tbody>
-                    <tr>
-	                    <td>Anna Chrzan</td>	
-                        <td><a href="E-mail@E-mail.com">E-mail@E-mail.com</a></td>
-                        <td>Użytkownik</td>
-                    </tr>
-                </tbody>
-                </table>                 
+                <tbody id="klienci">
+                </thead>
+           </table>
         </main>
         <footer>
             <p>Autor: Sebastian Musiał</p>
