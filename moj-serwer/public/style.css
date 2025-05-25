@@ -30,14 +30,11 @@ main h2 {
 /*User list*/
 table {
     width: 100%;
+    border: 2px black solid;
 }
 
 .ID_CARDS tr td {
     padding: 10px;
-    border: 2px black solid;
-}
-
-.ID_CARDS tr th {
     border: 2px black solid;
 }
 
