@@ -8,37 +8,41 @@
         <meta name="author" content="Sebastian Musiał">
         <link rel="stylesheet" href="style.css">
         <script>
-  fetch('/api/klienci')
-  .then(response => response.json())
-  .then(data => {
-    const Tablica = document.getElementById('klienci');
+        fetch('/api/klienci')
+        .then(response => response.json())
+        .then(data => {
+            const Tablica = document.getElementById('klienci');
 
-    data.forEach(klient => {
-      const row = document.createElement('tr');
+            data.forEach(klient => {
+            const row = document.createElement('tr');
 
-      const cell1 = document.createElement('td');
-      cell1.textContent = klient.ID_Client;
-      row.appendChild(cell1);
+            const cell1 = document.createElement('td');
+            cell1.textContent = klient.ID_Client;
+            row.appendChild(cell1);
 
-      const cell2 = document.createElement('td');
-      cell2.textContent = klient.Imie;
-      row.appendChild(cell2);
+            const cell2 = document.createElement('td');
+            cell2.textContent = klient.Imie;
+            row.appendChild(cell2);
 
-      const cell3 = document.createElement('td');
-      cell3.textContent = klient.Nazwisko;
-      row.appendChild(cell3);
+            const cell3 = document.createElement('td');
+            cell3.textContent = klient.Nazwisko;
+            row.appendChild(cell3);
 
-      const cell4 = document.createElement('td');
-      cell4.textContent = klient.Numer_Telefonu;
-      row.appendChild(cell4);
+            const cell4 = document.createElement('td');
+            cell4.textContent = klient.Adres;
+            row.appendChild(cell4);
 
-      Tablica.appendChild(row);
-    });
-  })
-  .catch(err => {
-    console.error('Błąd:', err);
-  });
-</script>
+            const cell5 = document.createElement('td');
+            cell5.textContent = klient.Numer_Telefonu;
+            row.appendChild(cell5);
+
+            Tablica.appendChild(row);
+            });
+        })
+        .catch(err => {
+            console.error('Błąd:', err);
+        });
+        </script>
     </head>
     <body>
         <header>
@@ -51,12 +55,159 @@
                         <th>Numer klienta</th>
                         <th>Imie</th>
                         <th>Nazwisko</th>
+                        <th>Adres</th>
                         <th>Numer telefonu</th>
                     </tr>
                 </thead>
                 <tbody id="klienci">
                 </thead>
-           </table>
+            </table>
+        <div class="Buttons">
+            <div id="Button_Add">
+                <fieldset>
+                <legend>Dodaj klienta</legend>
+                    <button id="Add">Dodaj</button>
+                    <label>
+                        <input type="text" id="A_Imie">
+                        = Imię
+                    </label>
+
+                    <label>
+                        <input type="text" id="A_Nazwisko">
+                        = Nazwisko
+                    </label>
+
+                    <label>
+                        <input type="text" id="A_Adres">
+                        = Adres
+                    </label>
+
+                    <label>
+                        <input type="text" id="A_Numer_tel">
+                        = Numer telefonu
+                    </label>
+
+                </fieldset>
+
+                <!--Skrypt dodający nowego klienta -->
+                <script>
+                    const imieInput = document.getElementById('A_Imie');
+                    const nazwiskoInput = document.getElementById('A_Nazwisko');
+                    const adresInput = document.getElementById('A_Adres');
+                    const telefonInput = document.getElementById('A_Numer_tel');
+                    const przyciskDodaj = document.getElementById('Add');
+                    const tabela = document.getElementById('klienci');
+
+                    przyciskDodaj.addEventListener('click', async () => {
+                        const imie = imieInput.value.trim();
+                        const nazwisko = nazwiskoInput.value.trim();
+                        const adres = telefonInput.value.trim();
+                        const telefon = telefonInput.value.trim();
+
+                        if (!imie || !nazwisko || !adres ||!telefon) {
+                        alert('Uzupełnij wszystkie pola!');
+                        return;
+                        }
+
+                        const response = await fetch('/api/klienci', { //Wysla dane przez fetch do serwera express. Await oczekiwania na odpowiedź od serwera
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ Imie: imie, Nazwisko: nazwisko, Adres: adres, Numer_Telefonu: telefon })
+                        });
+
+                        const nowyKlient = await response.json();
+
+                        const row = document.createElement('tr');
+
+                        const cellId = document.createElement('td');
+                        cellId.textContent = nowyKlient.ID_Client;
+
+                        const cellImie = document.createElement('td');
+                        cellImie.textContent = nowyKlient.Imie;
+
+                        const cellNazwisko = document.createElement('td');
+                        cellNazwisko.textContent = nowyKlient.Nazwisko;
+
+                        const cellAdres = document.createElement('td');
+                        cellAdres.textContent = nowyKlient.Adres;
+
+                        const cellTelefon = document.createElement('td');
+                        cellTelefon.textContent = nowyKlient.Numer_Telefonu;
+
+                        row.appendChild(cellId);
+                        row.appendChild(cellImie);
+                        row.appendChild(cellNazwisko);
+                        row.appendChild(cellAdres);
+                        row.appendChild(cellTelefon);
+
+                        tabela.appendChild(row);
+
+                        //Czyści formularz
+                        imieInput.value = '';
+                        nazwiskoInput.value = '';
+                        adresInput.value = '';
+                        telefonInput.value = '';
+                    });
+                </script>
+            </div>
+
+            <div id="Button_Update">
+                <fieldset>
+                <legend>Zmodyfikuj dane klienta</legend>
+                    <button id="Update">Modyfikuj</button>
+                    <label>
+                        <input type="number">
+                        = ID_Klienta
+                    </label>
+
+                    <label>
+                        <input type="text">
+                        = Imię
+                    </label>
+
+                    <label>
+                        <input type="text">
+                        = Numer telefonu
+                    </label>
+                    <label>
+                        <input type="text">
+                        = Numer telefonu:
+                    </label>
+                </fieldset>
+
+                <!--Skrypt modyfikujący dane klienta-->
+                <script>
+
+                    const zmien = document.getElementById('Update');
+
+                    zmien.addEventListener('click', () => {
+                        //Dodaje zmien do bazy danych
+                        alert("TEST2");
+                    });
+                </script>
+            </div>
+        
+            <div id="Button_Delete">
+                <fieldset>
+                <legend>Usuń klienta</legend>
+                    <button id="Delete">Skasuj</button>
+                    <label>
+                        <input type="number">
+                        = ID_Klienta
+                    </label>
+                </fieldset>
+
+                <script>
+                    const usun = document.getElementById('Delete');
+
+                    usun.addEventListener('click', () => {
+                        //Dodaje usun do bazy danych
+                        alert("TEST3");
+                    });
+                </script>
+            </div>
+        </div>
+
         </main>
         <footer>
             <p>Autor: Sebastian Musiał</p>
