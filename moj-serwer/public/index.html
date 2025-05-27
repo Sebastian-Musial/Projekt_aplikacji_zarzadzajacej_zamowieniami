@@ -192,17 +192,38 @@
                 <legend>Usuń klienta</legend>
                     <button id="Delete">Skasuj</button>
                     <label>
-                        <input type="number">
+                        <input type="number" id="D_ID_Client">
                         = ID_Klienta
                     </label>
                 </fieldset>
 
+                <!--Skrypt kasujacy rekord z klientem z bazy-->
                 <script>
-                    const usun = document.getElementById('Delete');
+                    const przyciskUsun = document.getElementById('Delete');
+                    const ID_Delete_Client = document.getElementById('D_ID_Client');
 
-                    usun.addEventListener('click', () => {
-                        //Dodaje usun do bazy danych
-                        alert("TEST3");
+                    przyciskUsun.addEventListener('click', async () => {
+                        const id = ID_Delete_Client.value.trim();
+
+                        if (!id) {
+                        alert('Podaj ID klienta do usunięcia.');
+                        return;
+                        }
+
+                        const potwierdzenie = confirm(`Czy na pewno chcesz usunąć klienta o ID ${id}?`);
+                        if (!potwierdzenie) return;
+
+                        const response = await fetch(`/api/klienci/${id}`, {    //Wyslanie przez fetch odpowiedzi do serwera w celu usuniecia danych
+                        method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                        alert('✅ Klient został usunięty.');
+                        ID_Delete_Client.value = '';
+                        } else {
+                        const error = await response.json();    //W przypadku bledu, przekazuje odpowiedz z JSON z informacja o bledzie
+                        alert(`❌ Błąd: ${error.error}`);
+                        }
                     });
                 </script>
             </div>
