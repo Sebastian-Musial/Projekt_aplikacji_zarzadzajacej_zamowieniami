@@ -8,6 +8,11 @@ body {
 }
 
 /*header*/
+header {
+    background-color: rgba(16, 100, 16, 0.411);
+    border-bottom: 3px black solid;
+}
+
 h1 {
     text-align: center;
 }
@@ -27,7 +32,7 @@ main h2 {
     padding-right: 20px;
 }
 
-/*User list*/
+/*Table*/
 table {
     width: 100%;
     border: 2px black solid;
@@ -37,6 +42,38 @@ table {
     padding: 10px;
     border: 2px black solid;
 }
+
+/*Buttons*/
+button {
+    padding: 10px;
+}
+
+label {
+    display: block;
+}
+
+input {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.Buttons {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+fieldset {
+    height: 100%;
+}
+
+#Button_Add, #Button_Update, #Button_Delete {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    min-width: 375px;
+    min-height: 200px;
+}
+
+
 
 /*Fotter*/
 footer {
