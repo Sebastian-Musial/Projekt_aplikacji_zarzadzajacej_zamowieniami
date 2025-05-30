@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Nazwa strony</title>
+        <meta name="description" content="OPIS strony">
+        <meta name="author" content="Sebastian Musiał">
+        <link rel="stylesheet" href="../style.css">
+        <script>
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 bo miesiące zaczynają się od 0
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        fetch('/api/zamowienia')
+        .then(response => response.json())
+        .then(data => {
+            const Tablica = document.getElementById('zamowienia');
+
+            data.forEach(klient => {
+            const row = document.createElement('tr');
+
+            const cell1 = document.createElement('td');
+            cell1.textContent = klient.ID_Order;
+            row.appendChild(cell1);
+
+            const cell2 = document.createElement('td');
+            cell2.textContent = klient.ID_Client;
+            row.appendChild(cell2);
+
+            const cell3 = document.createElement('td');
+            cell3.textContent = klient.Nazwa_uslugi;
+            row.appendChild(cell3);
+
+            const cell4 = document.createElement('td');
+            cell4.textContent = formatDate(klient.Data_zamowienia);
+            row.appendChild(cell4);
+
+            const cell5 = document.createElement('td');
+            cell5.textContent = formatDate(klient.Data_wykonania);
+            row.appendChild(cell5);
+
+            Tablica.appendChild(row);
+            });
+        })
+        .catch(err => {
+            console.error('Błąd:', err);
+        });
+        </script>
+    </head>
+    <body>
+        <header>
+            <h1>Zamówienia</h1>
+            <a href="../index.html" class="Back">&#11013;Do głównego menu</a>
+        </header>
+        <main>
+            <table class="Tabela">
+                <thead>
+                    <tr>
+                        <th>Numer zamówienia</th>
+                        <th>Numer klienta</th>
+                        <th>Nazwa usługi</th>
+                        <th>Data Zamówienia</th>
+                        <th>Data wykonania</th>
+                    </tr>
+                </thead>
+                <tbody id="zamowienia">
+                </body>
+            </table>
+
+            <div class="Buttons">
+                <div id="Button_Add">
+                    <fieldset>
+                    <legend>Dodaj zamówienie</legend>
+                        <button id="Add">Dodaj</button>
+                        <label>
+                            <input type="number" id="A_ID_Client">
+                            = Numer klienta
+                        </label>
+
+                        <label>
+                            <input type="text" id="A_Order">
+                            = Nazwa usługi
+                        </label>
+
+                        <label>
+                            <input type="text" id="A_Date">
+                            = Data zamówienia
+                        </label>
+                    </fieldset>
+
+                    <!--Skrypt dodający nowe zamówienie-->
+                    <script>
+                        const ID_ClientInput = document.getElementById('A_ID_Client');
+                        const orderInput = document.getElementById('A_Order');
+                        const dateInput = document.getElementById('A_Date');
+                        const przyciskDodaj = document.getElementById('Add');
+                        const tabela = document.getElementById('zamowienia');
+
+                        przyciskDodaj.addEventListener('click', async () => {
+                            const IDClient = ID_ClientInput.value.trim();
+                            const NazwaUslugi = orderInput.value.trim();
+                            const DataZamowienia = dateInput.value.trim();
+
+                            if (!IDClient || !NazwaUslugi || !DataZamowienia ) {
+                            alert('Uzupełnij wszystkie pola!');
+                            return;
+                            }
+
+                            const response = await fetch('/api/zamowienia', { //Wysla dane przez fetch do serwera express. Await oczekiwania na odpowiedź od serwera
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ID_Client: IDClient, Nazwa_uslugi: NazwaUslugi, Data_zamowienia: DataZamowienia})
+                            });
+
+                            const noweZamowienie = await response.json();
+
+                            const row = document.createElement('tr');
+
+                            const cellOrderId = document.createElement('td');
+                            cellOrderId.textContent = noweZamowienie.ID_Order;
+
+                            const cellId = document.createElement('td');
+                            cellId.textContent = noweZamowienie.ID_Client;
+
+                            const cellOrder = document.createElement('td');
+                            cellOrder.textContent = noweZamowienie.Nazwa_uslugi;
+
+                            const cellDate = document.createElement('td');
+                            cellDate.textContent = formatDate(noweZamowienie.Data_zamowienia);
+
+                            const cellDateF = document.createElement('td');
+                            cellDateF.textContent = '';
+
+                            row.appendChild(cellOrderId);
+                            row.appendChild(cellId);
+                            row.appendChild(cellOrder);
+                            row.appendChild(cellDate);
+                            row.appendChild(cellDateF);
+
+                            tabela.appendChild(row);
+
+                            //Czyści formularz
+                            ID_ClientInput.value = '';
+                            orderInput.value = '';
+                            dateInput.value = '';
+                        });
+                    </script>
+
+                </div>
+
+                <div id="Button_Update">
+                    <fieldset>
+                    <legend>Modyfikuj zamówienie</legend>
+                        <button id="Update">Modyfikuj</button>
+                        <label>
+                            <input type="number" id="U_ID_Order">
+                            = Numer zamówienia
+                        </label>
+
+                        <label>
+                            <input type="text" id="U_Order">
+                            = Nazwa usługi
+                        </label>
+
+                        <label>
+                            <input type="text" id="U_Date">
+                            = Data zamówienia
+                        </label>
+
+                        <label>
+                            <input type="text" id="U_Date_Finish">
+                            = Data wykonania
+                        </label>
+                    </fieldset>
+
+                    <!--Skrypt modyfikujący dane klienta-->
+                    <script>
+                        const przyciskUpdate = document.getElementById('Update');
+
+                        przyciskUpdate.addEventListener('click', async () => {
+                        const id = document.getElementById('U_ID_Order').value.trim();
+                        const order = document.getElementById('U_Order').value.trim();
+                        const date = document.getElementById('U_Date').value.trim();
+                        const dateF = document.getElementById('U_Date_Finish').value.trim();
+
+                        if (!id || !order || !date || !dateF) {
+                        alert('Uzupełnij wszystkie pola!');
+                        return;
+                        }
+
+                        const response = await fetch(`/api/zamowienia/${id}`, {    //Fetch wysyla zadanie do serwera expres
+                        method: 'PUT',  //Metoda PUT pozwala na aktualizacje danych w bazie
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            Nazwa_uslugi: order,
+                            Data_zamowienia: date,
+                            Data_wykonania: dateF
+                        })
+                        });
+
+                        if (response.ok) {
+                        alert('✅ Dane zamówienia zostały zaktualizowane.');
+                        } else {
+                        const error = await response.json();
+                        alert(`❌ Błąd: ${error.error}`);
+                        }
+                    });
+                    </script>
+                </div>
+
+                <div id="Button_Delete">
+                    <fieldset>
+                    <legend>Usuń zamówienie</legend>
+                        <button id="Delete">Usuń</button>
+                        <label>
+                            <input type="number" id="D_ID_Order">
+                            = Numer zamówienia
+                        </label>
+                    </fieldset>
+
+                    <!--Skrypt kasujacy rekord z zamowieniem z bazy-->
+                    <script>
+                        const przyciskUsun = document.getElementById('Delete');
+                        const ID_Delete_Order = document.getElementById('D_ID_Order');
+
+                        przyciskUsun.addEventListener('click', async () => {
+                            const id = ID_Delete_Order.value.trim();
+
+                            if (!id) {
+                            alert('Podaj ID zamówienia do usunięcia.');
+                            return;
+                            }
+
+                            const potwierdzenie = confirm(`Czy na pewno chcesz usunąć zamówienie o ID ${id}?`);
+                            if (!potwierdzenie) return;
+
+                            const response = await fetch(`/api/zamowienia/${id}`, {    //Wyslanie przez fetch odpowiedzi do serwera w celu usuniecia danych
+                            method: 'DELETE'
+                            });
+
+                            if (response.ok) {
+                            alert('✅ Zamówienie zostało usunięte.');
+                            ID_Delete_Order.value = '';
+                            } else {
+                            const error = await response.json();    //W przypadku bledu, przekazuje odpowiedz z JSON z informacja o bledzie
+                            alert(`❌ Błąd: ${error.error}`);
+                            }
+                        });
+                    </script>
+                </div>
+
+            </div>
+        </main>
+        <footer>
+            <p>Autor: Sebastian Musiał</p>
+        </footer>
+    </body>
+</html>
