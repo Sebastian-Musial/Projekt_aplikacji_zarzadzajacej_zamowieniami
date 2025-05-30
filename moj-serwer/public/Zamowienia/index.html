@@ -9,48 +9,6 @@
         <link rel="stylesheet" href="../style.css">
         <script>
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 bo miesiące zaczynają się od 0
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        fetch('/api/zamowienia')
-        .then(response => response.json())
-        .then(data => {
-            const Tablica = document.getElementById('zamowienia');
-
-            data.forEach(klient => {
-            const row = document.createElement('tr');
-
-            const cell1 = document.createElement('td');
-            cell1.textContent = klient.ID_Order;
-            row.appendChild(cell1);
-
-            const cell2 = document.createElement('td');
-            cell2.textContent = klient.ID_Client;
-            row.appendChild(cell2);
-
-            const cell3 = document.createElement('td');
-            cell3.textContent = klient.Nazwa_uslugi;
-            row.appendChild(cell3);
-
-            const cell4 = document.createElement('td');
-            cell4.textContent = formatDate(klient.Data_zamowienia);
-            row.appendChild(cell4);
-
-            const cell5 = document.createElement('td');
-            cell5.textContent = formatDate(klient.Data_wykonania);
-            row.appendChild(cell5);
-
-            Tablica.appendChild(row);
-            });
-        })
-        .catch(err => {
-            console.error('Błąd:', err);
-        });
         </script>
     </head>
     <body>
@@ -82,14 +40,13 @@
                             <input type="number" id="A_ID_Client">
                             = Numer klienta
                         </label>
-
                         <label>
                             <input type="text" id="A_Order">
                             = Nazwa usługi
                         </label>
 
                         <label>
-                            <input type="text" id="A_Date">
+                            <input type="date" id="A_Date">
                             = Data zamówienia
                         </label>
                     </fieldset>
@@ -150,6 +107,83 @@
                             orderInput.value = '';
                             dateInput.value = '';
                         });
+
+
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 bo miesiące zaczynają się od 0
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+        
+         const clientInput = document.getElementById('A_ID_Client');
+            document.addEventListener('DOMContentLoaded', () => {
+            
+                let numberOfClientsBase = 0;
+                fetch('/api/zamowienia')
+                .then(response => response.json())
+                .then(data => {
+                    const Tablica = document.getElementById('zamowienia');
+                    let numberOfClients = 0;
+                    data.forEach(klient => {
+                    numberOfClients++;
+
+                    const row = document.createElement('tr');
+
+                    const cell1 = document.createElement('td');
+                    cell1.textContent = klient.ID_Order;
+                    row.appendChild(cell1);
+
+                    const cell2 = document.createElement('td');
+                    cell2.textContent = klient.ID_Client;
+                    row.appendChild(cell2);
+
+                    const cell3 = document.createElement('td');
+                    cell3.textContent = klient.Nazwa_uslugi;
+                    row.appendChild(cell3);
+
+                    const cell4 = document.createElement('td');
+                    cell4.textContent = formatDate(klient.Data_zamowienia);
+                    row.appendChild(cell4);
+
+                    const cell5 = document.createElement('td');
+                    cell5.textContent = formatDate(klient.Data_wykonania);
+                    row.appendChild(cell5);
+
+                    Tablica.appendChild(row);
+                    });
+
+                    numberOfClientsBase = numberOfClients;
+                    const value = clientInput.value;
+                    const addBtn = document.getElementById('Add');
+                    console.log(value);
+                    if( numberOfClients >= value) {
+                        addBtn.disabled = true;
+                        addBtn.textContent = 'Limit klientów osiągnięty';
+                    } else {
+                        addBtn.disabled = false;
+                        addBtn.textContent = 'Dodaj';
+                    }
+
+                })
+                .catch(err => {
+                    console.error('Błąd:', err);
+                });
+                clientInput.addEventListener('input', () => {
+                const value = clientInput.value;
+                const addBtn = document.getElementById('Add');
+                console.log('numberOfClientsBase ' +numberOfClientsBase);
+                if (value && value <= numberOfClientsBase) {
+                    addBtn.disabled = false;
+                    addBtn.textContent = 'Dodaj';
+                } else {
+                    addBtn.disabled = true;
+                    addBtn.textContent = 'Wprowadź poprawny numer klienta';
+                }
+            });
+        })
+
                     </script>
 
                 </div>
