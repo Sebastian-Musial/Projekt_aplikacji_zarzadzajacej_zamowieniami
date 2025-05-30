@@ -9,7 +9,7 @@ app.use(express.static('public'));
 
 app.use(express.json()); // Jeśli będziesz wysyłać dane JSON
 
-// API do pobierania tabeli klientów
+// API do pobierania tabeli klientów --Tabela klienci--
 app.get('/api/klienci', (req, res) => {
   db.query('SELECT * FROM Client_Table', (err, results) => {
     if (err) {
@@ -21,7 +21,7 @@ app.get('/api/klienci', (req, res) => {
   });
 });
 
-// Dodawanie klienta do bazy danych
+// Dodawanie klienta do bazy danych --Tabela klienci--
 app.post('/api/klienci', (req, res) => {    //nasłuchiwanie zadan typu POST(Dodanie danych), Req - dane zadania z formularzy w HTML, Res wysłanie odpowiedzi z serwera do klienta
   const { Imie, Nazwisko, Adres, Numer_Telefonu } = req.body;   //Destukturyzacja req.body który zawiera dane z frontendu z fetch - dane z formularzy input
 
@@ -44,7 +44,36 @@ app.post('/api/klienci', (req, res) => {    //nasłuchiwanie zadan typu POST(Dod
   });
 });
 
-// Usuwanie klienta po ID
+// Modyfikacja danych klienta po ID --Tabela klienci--
+app.put('/api/klienci/:id', (req, res) => {
+  const id = parseInt(req.params.id, 10); //Konwersja podanego id ze stringa na int, do liczb dziesietnych (10)
+  const { Imie, Nazwisko, Adres, Numer_Telefonu } = req.body; //Odczytuje dane z pliku JSON
+
+  if (isNaN(id)) {
+    return res.status(400).json({ error: 'Nieprawidłowe ID klienta' });
+  }
+
+  const sql = `
+    UPDATE Client_Table 
+    SET Imie = ?, Nazwisko = ?, Adres = ?, Numer_Telefonu = ? 
+    WHERE ID_Client = ?
+  `;
+
+  db.query(sql, [Imie, Nazwisko, Adres, Numer_Telefonu, id], (err, result) => {
+    if (err) {
+      console.error('❌ Błąd podczas aktualizacji:', err);
+      return res.status(500).json({ error: 'Błąd bazy danych' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Nie znaleziono klienta o podanym ID' });
+    }
+
+    res.status(200).json({ message: 'Dane klienta zaktualizowane' });
+  });
+});
+
+// Usuwanie klienta po ID --Tabela klienci--
 app.delete('/api/klienci/:id', (req, res) => {  //parseInt --> Konwersja na liczbe calkowita (dziesiętną - 10) poniewaz ID jest przesylane w postaci stringu
   const id = parseInt(req.params.id, 10); //req.params.id --> Przechwycenie podanego :ID na froncie przez usera w celu udostepnienia zmiennej
 
