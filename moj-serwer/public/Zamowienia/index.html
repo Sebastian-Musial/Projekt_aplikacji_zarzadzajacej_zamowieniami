@@ -10,9 +10,11 @@
         <script>
 
         function formatDate(dateString) {
+            if (!dateString) return ''; // Zwraca pusty string jeśli data nie istnieje
             const date = new Date(dateString);
+            if (isNaN(date.getTime())) return ''; // Obsługa nieprawidłowych dat
             const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0'); // +1 bo miesiące zaczynają się od 0
+            const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         }
@@ -42,8 +44,12 @@
             row.appendChild(cell4);
 
             const cell5 = document.createElement('td');
-            cell5.textContent = formatDate(klient.Data_wykonania);
+            cell5.textContent = formatDate(klient.Termin_Do_wykonania);
             row.appendChild(cell5);
+
+            const cell6 = document.createElement('td');
+            cell6.textContent = klient.Status_Zam;
+            row.appendChild(cell6);
 
             Tablica.appendChild(row);
             });
@@ -66,7 +72,8 @@
                         <th>Numer klienta</th>
                         <th>Nazwa usługi</th>
                         <th>Data Zamówienia</th>
-                        <th>Data wykonania</th>
+                        <th>Termin do wykonania</th>
+                        <th>Status zamówienia</th>
                     </tr>
                 </thead>
                 <tbody id="zamowienia">
@@ -92,6 +99,11 @@
                             <input type="date" id="A_Date">
                             = Data zamówienia
                         </label>
+
+                        <label>
+                            <input type="text" id="A_Status">
+                            = Status zamówienia
+                        </label>
                     </fieldset>
 
                     <!--Skrypt dodający nowe zamówienie-->
@@ -99,6 +111,7 @@
                         const ID_ClientInput = document.getElementById('A_ID_Client');
                         const orderInput = document.getElementById('A_Order');
                         const dateInput = document.getElementById('A_Date');
+                        const statusInput = document.getElementById('A_Status')
                         const przyciskDodaj = document.getElementById('Add');
                         const tabela = document.getElementById('zamowienia');
 
@@ -106,8 +119,9 @@
                             const IDClient = ID_ClientInput.value.trim();
                             const NazwaUslugi = orderInput.value.trim();
                             const DataZamowienia = dateInput.value.trim();
+                            const Status = statusInput.value.trim();
 
-                            if (!IDClient || !NazwaUslugi || !DataZamowienia ) {
+                            if (!IDClient || !NazwaUslugi || !DataZamowienia || !Status ) {
                             alert('Uzupełnij wszystkie pola!');
                             return;
                             }
@@ -115,7 +129,7 @@
                             const response = await fetch('/api/zamowienia', { //Wysla dane przez fetch do serwera express. Await oczekiwania na odpowiedź od serwera
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ ID_Client: IDClient, Nazwa_uslugi: NazwaUslugi, Data_zamowienia: DataZamowienia})
+                            body: JSON.stringify({ ID_Client: IDClient, Nazwa_uslugi: NazwaUslugi, Data_zamowienia: DataZamowienia, Status_Zam: Status})
                             });
 
                             const noweZamowienie = await response.json();
@@ -137,11 +151,15 @@
                             const cellDateF = document.createElement('td');
                             cellDateF.textContent = '';
 
+                            const cellStatus = document.createElement('td');
+                            cellStatus.textContent = noweZamowienie.Status_Zam;
+
                             row.appendChild(cellOrderId);
                             row.appendChild(cellId);
                             row.appendChild(cellOrder);
                             row.appendChild(cellDate);
                             row.appendChild(cellDateF);
+                            row.appendChild(cellStatus);
 
                             tabela.appendChild(row);
 
@@ -149,6 +167,7 @@
                             ID_ClientInput.value = '';
                             orderInput.value = '';
                             dateInput.value = '';
+                            statusInput.value = '';
                         });
                     </script>
 
@@ -175,7 +194,12 @@
 
                         <label>
                             <input type="date" id="U_Date_Finish">
-                            = Data wykonania
+                            = Termin do wykonania
+                        </label>
+
+                        <label>
+                            <input type="text" id="U_Status">
+                            = Status zamówienia
                         </label>
                     </fieldset>
 
@@ -188,8 +212,9 @@
                         const order = document.getElementById('U_Order').value.trim();
                         const date = document.getElementById('U_Date').value.trim();
                         const dateF = document.getElementById('U_Date_Finish').value.trim();
+                        const status = document.getElementById('U_Status').value.trim();
 
-                        if (!id || !order || !date || !dateF) {
+                        if (!id || !order || !date || !dateF || !status) {
                         alert('Uzupełnij wszystkie pola!');
                         return;
                         }
@@ -202,7 +227,8 @@
                         body: JSON.stringify({
                             Nazwa_uslugi: order,
                             Data_zamowienia: date,
-                            Data_wykonania: dateF
+                            Termin_Do_wykonania: dateF,
+                            Status_Zam: status
                         })
                         });
 

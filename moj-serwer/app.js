@@ -58,10 +58,10 @@ app.post('/api/klienci', (req, res) => {    //nasłuchiwanie zadan typu POST(Dod
 
 // Dodawanie zamowienia do bazy danych --Tabela zamowienia--
 app.post('/api/zamowienia', (req, res) => {    //nasłuchiwanie zadan typu POST(Dodanie danych), Req - dane zadania z formularzy w HTML, Res wysłanie odpowiedzi z serwera do klienta
-  const { ID_Client, Nazwa_uslugi, Data_zamowienia } = req.body;   //Destukturyzacja req.body który zawiera dane z frontendu z fetch - dane z formularzy input
+  const { ID_Client, Nazwa_uslugi, Data_zamowienia, Status_Zam } = req.body;   //Destukturyzacja req.body który zawiera dane z frontendu z fetch - dane z formularzy input
 
-  const sql = 'INSERT INTO Orders_Table (ID_Client, Nazwa_uslugi, Data_zamowienia) VALUES (?, ?, ?)';   //Dodaje dane w SQL. Placeholdery czyli "?"" zabezpieczają dane przez SQL injection
-  db.query(sql, [ID_Client, Nazwa_uslugi, Data_zamowienia], (err, result) => {
+  const sql = 'INSERT INTO Orders_Table (ID_Client, Nazwa_uslugi, Data_zamowienia, Status_Zam) VALUES (?, ?, ?, ?)';   //Dodaje dane w SQL. Placeholdery czyli "?"" zabezpieczają dane przez SQL injection
+  db.query(sql, [ID_Client, Nazwa_uslugi, Data_zamowienia, Status_Zam], (err, result) => {
     if (err) {
       console.error('Błąd zapisu do bazy:', err);
       return res.status(500).json({ error: 'Błąd bazy danych' });
@@ -71,7 +71,7 @@ app.post('/api/zamowienia', (req, res) => {    //nasłuchiwanie zadan typu POST(
       ID_Order: result.insertId, //Przypisanie wartosci ID ktora wygenerowala baza MySQL
       ID_Client,
       Nazwa_uslugi,
-      Data_zamowienia
+      Status_Zam
     };
 
     res.status(201).json(noweZamowienie);   //status(201) kod HTTP oznaczający utworzenie zasobu. Zwraca "NoweZamowienie" w formacie JSON do frontendu w celu dodania nowego wiersza w tabeli
@@ -89,7 +89,7 @@ app.put('/api/klienci/:id', (req, res) => {
 
   const sql = `
     UPDATE Client_Table 
-    SET Imie = ?, Nazwisko = ?, Adres = ?, Numer_Telefonu = ? 
+    SET Imie = ?, Nazwisko = ?, Adres = ?, Numer_Telefonu = ?
     WHERE ID_Client = ?
   `;
 
@@ -110,7 +110,7 @@ app.put('/api/klienci/:id', (req, res) => {
 // Modyfikacja danych zamówienia po ID --Tabela zamówienia--
 app.put('/api/zamowienia/:id', (req, res) => {
   const id = parseInt(req.params.id, 10); //Konwersja podanego id ze stringa na int, do liczb dziesietnych (10)
-  const { Nazwa_uslugi, Data_zamowienia, Data_wykonania } = req.body; //Odczytuje dane z pliku JSON
+  const { Nazwa_uslugi, Data_zamowienia, Termin_Do_wykonania, Status_Zam } = req.body; //Odczytuje dane z pliku JSON
 
   if (isNaN(id)) {
     return res.status(400).json({ error: 'Nieprawidłowe ID zamowienia' });
@@ -118,11 +118,11 @@ app.put('/api/zamowienia/:id', (req, res) => {
 
   const sql = `
     UPDATE Orders_Table 
-    SET Nazwa_uslugi = ?, Data_zamowienia = ?, Data_wykonania = ? 
+    SET Nazwa_uslugi = ?, Data_zamowienia = ?, Termin_Do_wykonania = ? , Status_Zam = ?
     WHERE ID_Order = ?
   `;
 
-  db.query(sql, [ Nazwa_uslugi, Data_zamowienia, Data_wykonania, id], (err, result) => {
+  db.query(sql, [ Nazwa_uslugi, Data_zamowienia, Termin_Do_wykonania, Status_Zam, id], (err, result) => {
     if (err) {
       console.error('❌ Błąd podczas aktualizacji:', err);
       return res.status(500).json({ error: 'Błąd bazy danych' });
